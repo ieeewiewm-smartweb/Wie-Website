@@ -1,0 +1,13 @@
+<!--
+  This SVG is a placeholder. Replace the <image> href value with the
+  base64 string of the actual footer logo you provided (or simply
+  drop a real SVG/PNG file here and update the import path accordingly).
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="120" viewBox="0 0 800 120">
+  <image
+    href="data:image/png;base64,REPLACE_WITH_ACTUAL_BASE64"
+    width="800"
+    height="120"
+    preserveAspectRatio="xMidYMid meet"
+  />
+</svg>

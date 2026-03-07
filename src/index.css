@@ -1,0 +1,203 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* IEEE WIE color palette - using purple as primary color */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 270 61% 47%; /* Purple */
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 270 30% 96%;
+    --secondary-foreground: 270 61% 47%;
+
+    --muted: 270 30% 96%;
+    --muted-foreground: 270 10% 50%;
+
+    --accent: 270 30% 96%;
+    --accent-foreground: 270 61% 47%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 270 20% 87%;
+    --input: 270 20% 87%;
+    --ring: 270 61% 47%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 270 60% 70%;
+    --primary-foreground: 270 10% 20%;
+
+    --secondary: 270 30% 20%;
+    --secondary-foreground: 270 60% 80%;
+
+    --muted: 270 30% 20%;
+    --muted-foreground: 270 20% 70%;
+
+    --accent: 270 30% 20%;
+    --accent-foreground: 270 60% 80%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 270 30% 20%;
+    --input: 270 30% 20%;
+    --ring: 270 60% 70%;
+    
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply overflow-x-hidden;
+  }
+
+  body {
+    @apply bg-background text-foreground overflow-x-hidden;
+  }
+
+  /* custom event card styling and animations */
+  .event-card-wrapper {
+    position: relative;
+    @apply rounded-lg border-[1.5px] border-purple-600 bg-gradient-to-br from-[#faf5ff] to-[#f3e8ff] shadow-[0_0_16px_rgba(124,58,237,0.25)] transition-transform duration-300;
+  }
+  .event-card-wrapper:hover {
+    @apply shadow-[0_0_28px_rgba(124,58,237,0.5)] -translate-y-1;
+    animation: glow-pulse 0.6s ease-out;
+  }
+  .event-card-wrapper .event-title {
+    @apply text-[#6d28d9] font-bold;
+  }
+  .event-card-wrapper .event-icon-text {
+    @apply text-[#7c3aed];
+  }
+  .event-card-wrapper .learn-more-link {
+    @apply text-[#7c3aed] hover:underline;
+  }
+
+  .gradient-top-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, #7c3aed, #a855f7, #7c3aed);
+    background-size: 200% 100%;
+    animation: slide-anim 2s linear infinite;
+  }
+
+  @keyframes slide-anim {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 100% 0%; }
+  }
+
+  @keyframes glow-pulse {
+    0% { box-shadow: 0 0 28px rgba(124,58,237,0.5); }
+    50% { box-shadow: 0 0 40px rgba(124,58,237,0.7); }
+    100% { box-shadow: 0 0 28px rgba(124,58,237,0.5); }
+  }
+
+  /* Hero section animations */
+  @keyframes blob {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    25% { transform: translate(20px, -50px) scale(1.1); }
+    50% { transform: translate(-20px, 20px) scale(0.9); }
+    75% { transform: translate(50px, 50px) scale(1.05); }
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-blob {
+    animation: blob 7s infinite;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.8s ease-out;
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.8s ease-out;
+  }
+
+  .animation-delay-200 {
+    animation-delay: 0.2s;
+  }
+
+  .animation-delay-400 {
+    animation-delay: 0.4s;
+  }
+
+  .animation-delay-600 {
+    animation-delay: 0.6s;
+  }
+
+  .animation-delay-800 {
+    animation-delay: 0.8s;
+  }
+
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+}
+

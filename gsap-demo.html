@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>GSAP Event Cards Demo</title>
+
+  <!-- CSS goes in the head -->
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f3f3f3;
+    }
+
+    .events-container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+
+    .event-item {
+      background: #fff;
+      border-radius: 4px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      /* hint to browser that we'll animate these properties */
+      will-change: transform, opacity;
+      opacity: 0; /* start state if JS is disabled */
+      transform: translateX(-100px);
+    }
+  </style>
+</head>
+<body>
+  <section class="events-container">
+    <div class="event-item">Event 1</div>
+    <div class="event-item">Event 2</div>
+    <div class="event-item">Event 3</div>
+    <div class="event-item">Event 4</div>
+    <div class="event-item">Event 5</div>
+  </section>
+
+  <!-- GSAP CDN links -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/ScrollTrigger.min.js"></script>
+
+  <!-- animation script -->
+  <script>
+    // do nothing if user prefers reduced motion
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      document.querySelectorAll(".event-item").forEach(el => {
+        el.style.opacity = "1";
+        el.style.transform = "none";
+      });
+    } else {
+      // register plugin
+      gsap.registerPlugin(ScrollTrigger);
+
+      // matchMedia for responsive tweaks
+      const mm = gsap.matchMedia();
+
+      mm.add({
+        // all devices
+        "(min-width: 0px)": function() {
+          const items = gsap.utils.toArray(".event-item");
+          gsap.fromTo(items,
+            {
+              opacity: 0,
+              x: -100
+            },
+            {
+              opacity: 1,
+              x: 0,
+              duration: 1,
+              ease: "power3.out",
+              stagger: 0.2,
+              scrollTrigger: {
+                trigger: items,
+                start: "top 85%",
+                toggleActions: "play none none none",
+                // markers: false // production: markers are off
+              }
+            }
+          );
+        },
+        // override for narrow screens
+        "(max-width: 767px)": function() {
+          const items = gsap.utils.toArray(".event-item");
+          gsap.fromTo(items,
+            {
+              opacity: 0,
+              x: -50
+            },
+            {
+              opacity: 1,
+              x: 0,
+              duration: 0.8,
+              ease: "power3.out",
+              stagger: 0.2,
+              scrollTrigger: {
+                trigger: items,
+                start: "top 85%",
+                toggleActions: "play none none none",
+              }
+            }
+          );
+        }
+      });
+    }
+  </script>
+</body>
+</html>
