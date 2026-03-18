@@ -18,7 +18,7 @@ export default function RecentEventSlider({ events }: RecentEventSliderProps) {
 
   // Card width + gap (320px card + 32px gap = 352px)
   const CARD_WIDTH = 352;
-  const SPEED = 1.2; // pixels per frame (~72px/s → full cycle in ~10s for 6 cards)
+  const SPEED = 0.8; // Reduced speed for better performance
 
   // Duplicate events for seamless looping
   const duplicatedEvents = [...events, ...events];
@@ -31,7 +31,7 @@ export default function RecentEventSlider({ events }: RecentEventSliderProps) {
       lastTimeRef.current = timestamp;
 
       if (!isPausedRef.current && delta < 100) {
-        offsetRef.current -= SPEED * (delta / 16); // normalize to ~60fps
+        offsetRef.current -= SPEED * (delta / 20); // Slower animation
 
         // When we've scrolled past the first set, instantly reset
         if (Math.abs(offsetRef.current) >= halfWidth) {

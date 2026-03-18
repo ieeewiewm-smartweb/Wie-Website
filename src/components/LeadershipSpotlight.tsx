@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import LazyImage from "./LazyImage";
 
 interface Member {
   name: string;
@@ -61,11 +62,11 @@ export default function LeadershipSpotlight() {
 
   const active = members[activeIndex];
 
-  // Auto-advance carousel every 4 seconds
+  // Auto-advance carousel every 6 seconds (slower for better performance)
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveIndex((i) => (i + 1) % members.length);
-    }, 4000);
+    }, 6000);
 
     return () => clearInterval(interval);
   }, [members.length]);
@@ -134,11 +135,7 @@ export default function LeadershipSpotlight() {
               transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
             >
               {/* radial spotlight */}
-              <motion.div
-                className="absolute -inset-10 bg-gradient-to-br from-purple-400/30 via-pink-400/20 to-indigo-400/30"
-                animate={{ scale: [1, 1.05, 1], rotate: [0, 5, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              />
+              <div className="absolute -inset-10 bg-gradient-to-br from-purple-400/20 via-pink-400/10 to-indigo-400/20" />
               {/* layered borders with gradient */}
               <div className="absolute -inset-6 border-4 border-purple-400 opacity-40 shadow-lg"></div>
               <div className="absolute -inset-3 border-2 border-purple-600 opacity-60"></div>
@@ -154,11 +151,12 @@ export default function LeadershipSpotlight() {
                 onClick={handleImageClick}
               >
                 {active.image ? (
-                  <img
-                    src={active.image}
-                    alt={active.name}
-                    className="w-full h-full object-cover"
-                  />
+                <LazyImage
+                  src={active.image}
+                  alt={active.name}
+                  className="w-full h-full object-cover"
+                  placeholder={initials(active.name)}
+                />
                 ) : (
                   <span className="text-purple-700 font-semibold text-3xl">
                     {initials(active.name)}

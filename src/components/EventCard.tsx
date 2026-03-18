@@ -2,6 +2,7 @@ import { memo } from "react";
 import { Card } from "@/components/ui/card";
 import { type Event as ContentEvent } from "@/types/content";
 import { CalendarIcon, MapPinIcon, ChevronRight } from "lucide-react";
+import LazyImage from "./LazyImage";
 
 interface EventCardProps {
   event: ContentEvent;
@@ -12,12 +13,11 @@ const EventCard = ({ event }: EventCardProps) => {
     <Card className="w-[320px] h-[480px] flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 bg-white border border-gray-100 group rounded-2xl">
       {/* Poster section - fixed height with padding */}
       <div className="h-[260px] flex items-center justify-center p-4 bg-gray-50 overflow-hidden rounded-t-2xl">
-        <img
+        <LazyImage
           src={event.imageUrl}
           alt={event.title}
-          loading="lazy"
-          decoding="async"
           className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+          placeholder="Loading..."
         />
       </div>
 

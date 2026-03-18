@@ -18,6 +18,7 @@ import LeadershipSpotlight from "@/components/LeadershipSpotlight";
 import CountUpSection from "@/components/CountUpSection";
 import OpportunitiesSection from "@/components/OpportunitiesSection";
 import { motion } from "framer-motion";
+import LazyImage from "@/components/LazyImage";
 
 const parseDate = (dateString: string): Date => {
   const cleanedDateString = dateString.replace(/(\d+)(st|nd|rd|th)/, "$1"); // Remove ordinal suffix
@@ -64,11 +65,11 @@ const Index = () => {
         {/* Hero Section - Reduced padding */}
         <section className="relative py-4 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center text-center w-full overflow-hidden">
           {/* Animated Background Elements */}
-          <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-20 left-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-            <div className="absolute top-40 right-10 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
-            <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-indigo-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
-          </div>
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+              <div className="absolute top-20 left-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-10"></div>
+              <div className="absolute top-40 right-10 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-10"></div>
+              <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-indigo-300 rounded-full mix-blend-multiply filter blur-xl opacity-10"></div>
+            </div>
 
           <div className="relative z-10 max-w-5xl mx-auto">
             {/* Badge */}
@@ -253,28 +254,24 @@ const Index = () => {
             <div className={`mt-2 ${activeTab === "awards" ? "block" : "hidden"}`}>
                 {awards.length > 0 ? (
                   <div className="space-y-6">
-                    {/* Filter unique awards and sort by year */}
+                    {/* Show only first 3 awards initially for faster loading */}
                     {awards
                       .filter((award, index, self) =>
                         index === self.findIndex((a) => a.title === award.title)
                       )
                       .sort((a, b) => parseInt(b.date) - parseInt(a.date))
+                      .slice(0, 6)
                       .map((award, index) => (
-                        <motion.div
-                          key={award.id}
-                          initial={{ opacity: 0, scale: 0.95, y: 30 }}
-                          whileInView={{ opacity: 1, scale: 1, y: 0 }}
-                          transition={{ duration: 0.7, ease: "easeOut", delay: index * 0.15 }}
-                          viewport={{ once: true, amount: 0.2 }}
-                        >
+                        <div key={award.id}>
                           <Link to={`/award/${award.id}`} className="block">
                             <Card className="hover:shadow-lg transition-shadow duration-300 overflow-hidden">
                             <div className="grid md:grid-cols-4 gap-4">
                               <div className="aspect-video md:aspect-square md:col-span-1 overflow-hidden">
-                                <img
+                                <LazyImage
                                   src={award.imageUrl}
                                   alt={award.title}
                                   className="w-full h-full object-cover"
+                                  placeholder="Award"
                                 />
                               </div>
                               <div className="p-4 md:col-span-3">
@@ -283,12 +280,12 @@ const Index = () => {
                                   <h3 className="text-xl font-semibold text-purple-800">{award.title}</h3>
                                 </div>
                                 <p className="text-sm text-gray-600 mb-3">{award.date}</p>
-                                <p className="text-gray-700">{award.description}</p>
+                                <p className="text-gray-700 line-clamp-3">{award.description}</p>
                               </div>
                             </div>
                           </Card>
                         </Link>
-                      </motion.div>
+                      </div>
                       ))}
                   </div>
                 ) : (
