@@ -30,8 +30,9 @@ const parseDate = (dateString: string): Date => {
 const Index = () => {
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [activeTab, setActiveTab] = useState<"recent" | "awards">("recent");
-  const { events } = useEvents();
-  const { awards } = useAwards();
+  const { events, loading: eventsLoading } = useEvents();
+  const { awards, loading: awardsLoading } = useAwards();
+  const loading = eventsLoading || awardsLoading;
 
   // Scroll-reveal animation hook for fade-in and slide-up effect
   const eventRefsForAnimation = useScrollReveal({
@@ -54,6 +55,35 @@ const Index = () => {
         }),
     [events]
   );
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="bg-gradient-to-b from-purple-50 to-white w-full max-w-full overflow-x-hidden">
+        <Navbar />
+        <div className="pt-16 md:pt-20 flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+            <p className="text-purple-600">Loading content...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="bg-gradient-to-b from-purple-50 to-white w-full max-w-full overflow-x-hidden">
+        <Navbar />
+        <div className="pt-16 md:pt-20 flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+            <p className="text-purple-600">Loading content...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
 
   return (
@@ -240,7 +270,7 @@ const Index = () => {
 
             {/* Content for both tabs - use visibility instead of unmounting */}
             <div className={`mt-2 ${activeTab === "recent" ? "block" : "hidden"}`}>
-              {events.length > 0 ? (
+              {sortedUniqueEvents.length > 0 ? (
                 <RecentEventSlider events={sortedUniqueEvents} />
               ) : (
                 <Card className="shadow-md mx-auto max-w-md">

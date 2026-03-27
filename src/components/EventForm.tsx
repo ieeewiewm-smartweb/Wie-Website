@@ -39,11 +39,11 @@ const EventForm = ({ event, onSubmit, onCancel }: EventFormProps) => {
 
   return (
     <Dialog open={true} onOpenChange={onCancel}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{event ? "Edit Event" : "Add New Event"}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 pb-4">
           <div className="space-y-2">
             <Label htmlFor="title">Event Title</Label>
             <Input
@@ -94,8 +94,9 @@ const EventForm = ({ event, onSubmit, onCancel }: EventFormProps) => {
                 id="ieeeCount"
                 type="number"
                 min="0"
-                value={ieeeCount}
-                onChange={(e) => setIeeeCount(Number(e.target.value))}
+                value={ieeeCount === 0 ? "" : ieeeCount}
+                onChange={(e) => setIeeeCount(e.target.value === "" ? 0 : Number(e.target.value))}
+                placeholder="0"
               />
             </div>
 
@@ -105,8 +106,9 @@ const EventForm = ({ event, onSubmit, onCancel }: EventFormProps) => {
                 id="nonIeeeCount"
                 type="number"
                 min="0"
-                value={nonIeeeCount}
-                onChange={(e) => setNonIeeeCount(Number(e.target.value))}
+                value={nonIeeeCount === 0 ? "" : nonIeeeCount}
+                onChange={(e) => setNonIeeeCount(e.target.value === "" ? 0 : Number(e.target.value))}
+                placeholder="0"
               />
             </div>
           </div>

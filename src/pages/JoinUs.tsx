@@ -6,8 +6,29 @@ import { useEffect } from "react";
 
 const JoinUs = () => {
   useEffect(() => {
-    // Redirect to the IEEE contact page
-    window.location.href = "https://ieee.socet.edu.in/contact/";
+    // Multiple redirect attempts for maximum compatibility
+    const redirect = () => {
+      try {
+        // Method 1: Direct assignment
+        window.location = "https://ieeesousb-19feb.vercel.app/join";
+      } catch (e) {
+        try {
+          // Method 2: href assignment
+          window.location.href = "https://ieeesousb-19feb.vercel.app/join";
+        } catch (e2) {
+          // Method 3: replace
+          window.location.replace("https://ieeesousb-19feb.vercel.app/join");
+        }
+      }
+    };
+    
+    // Immediate redirect
+    redirect();
+    
+    // Backup redirect after 500ms
+    const timer = setTimeout(redirect, 500);
+    
+    return () => clearTimeout(timer);
   }, []);
 
   // This will only render briefly before redirect
@@ -19,15 +40,15 @@ const JoinUs = () => {
         <h1 className="text-4xl font-bold text-purple-800 mb-4">Redirecting you...</h1>
         
         <p className="text-lg text-gray-700 mb-8">
-          Taking you to the IEEE SOU contact page. If you're not redirected automatically, please click the button below.
+          Taking you to the IEEE SOU join page. If you're not redirected automatically, please click the button below.
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-          <Button className="bg-purple-700 hover:bg-purple-800" asChild>
-            <a href="https://ieee.socet.edu.in/contact/" target="_blank" rel="noopener noreferrer">
-              <Mail className="h-4 w-4 mr-2" />
-              Go to Contact Page
-            </a>
+          <Button className="bg-purple-700 hover:bg-purple-800" onClick={() => {
+            window.location.href = "https://ieeesousb-19feb.vercel.app/join";
+          }}>
+            <Mail className="h-4 w-4 mr-2" />
+            Go to Join Page
           </Button>
           
           <Button variant="outline" className="border-purple-300" asChild>

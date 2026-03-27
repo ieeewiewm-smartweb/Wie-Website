@@ -10,7 +10,8 @@ interface LazyImageProps {
 export default function LazyImage({ src, alt, className = '', placeholder }: LazyImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(false);
-  const imgRef = useRef<HTMLImageElement>(null);
+  const [hasError, setHasError] = useState(false);
+  const imgRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -30,11 +31,19 @@ export default function LazyImage({ src, alt, className = '', placeholder }: Laz
     return () => observer.disconnect();
   }, []);
 
+  if (!src || hasError) {
+    return (
+      <div ref={imgRef} className={`${className} bg-gray-200 flex items-center justify-center`}>
+        <span className="text-gray-400 text-lg font-semibold">{placeholder}</span>
+      </div>
+    );
+  }
+
   return (
-    <div ref={imgRef} className={`relative ${className}`}>
+    <div ref={imgRef} className="relative w-full h-full">
       {!isLoaded && (
-        <div className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center">
-          {placeholder && <span className="text-gray-400 text-sm">{placeholder}</span>}
+        <div className={`absolute inset-0 ${className} bg-gray-200 animate-pulse flex items-center justify-center`}>
+          <span className="text-gray-400 text-lg font-semibold">{placeholder}</span>
         </div>
       )}
       {isInView && (
@@ -43,6 +52,7 @@ export default function LazyImage({ src, alt, className = '', placeholder }: Laz
           alt={alt}
           className={`${className} ${isLoaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}
           onLoad={() => setIsLoaded(true)}
+          onError={() => setHasError(true)}
           loading="lazy"
           decoding="async"
         />

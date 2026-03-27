@@ -62,11 +62,11 @@ export default function LeadershipSpotlight() {
 
   const active = members[activeIndex];
 
-  // Auto-advance carousel every 6 seconds (slower for better performance)
+  // Auto-advance carousel every 8 seconds (even slower for better performance)
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveIndex((i) => (i + 1) % members.length);
-    }, 6000);
+    }, 8000);
 
     return () => clearInterval(interval);
   }, [members.length]);
@@ -137,8 +137,8 @@ export default function LeadershipSpotlight() {
               {/* radial spotlight */}
               <div className="absolute -inset-10 bg-gradient-to-br from-purple-400/20 via-pink-400/10 to-indigo-400/20" />
               {/* layered borders with gradient */}
-              <div className="absolute -inset-6 border-4 border-purple-400 opacity-40 shadow-lg"></div>
-              <div className="absolute -inset-3 border-2 border-purple-600 opacity-60"></div>
+              <div className="absolute -inset-6 border-2 border-purple-400 opacity-30"></div>
+              <div className="absolute -inset-3 border border-purple-500 opacity-40"></div>
 
               <motion.div
                 variants={{
@@ -151,12 +151,12 @@ export default function LeadershipSpotlight() {
                 onClick={handleImageClick}
               >
                 {active.image ? (
-                <LazyImage
-                  src={active.image}
-                  alt={active.name}
-                  className="w-full h-full object-cover"
-                  placeholder={initials(active.name)}
-                />
+                  <img
+                    src={active.image}
+                    alt={active.name}
+                    className="w-full h-full object-cover"
+                    loading="eager"
+                  />
                 ) : (
                   <span className="text-purple-700 font-semibold text-3xl">
                     {initials(active.name)}
