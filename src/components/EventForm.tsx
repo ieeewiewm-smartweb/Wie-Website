@@ -39,9 +39,12 @@ const EventForm = ({ event, onSubmit, onCancel }: EventFormProps) => {
 
   return (
     <Dialog open={true} onOpenChange={onCancel}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto" aria-describedby="event-form-description">
         <DialogHeader>
           <DialogTitle>{event ? "Edit Event" : "Add New Event"}</DialogTitle>
+          <p id="event-form-description" className="sr-only">
+            {event ? "Edit the details of an existing event" : "Add a new event with title, date, location, and other details"}
+          </p>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 pb-4">
           <div className="space-y-2">

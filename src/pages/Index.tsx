@@ -21,50 +21,37 @@ import { motion } from "framer-motion";
 import LazyImage from "@/components/LazyImage";
 
 const parseDate = (dateString: string): Date => {
-  // Handle various date formats including multi-day events
-  let cleanedDateString = dateString
-    .replace(/(\d+)(st|nd|rd|th)/g, "$1") // Remove ordinal suffixes
-    .replace(/[–—-]/g, "-") // Replace en dash, em dash with regular dash
-    .trim();
+  // Simple approach: extract the first date from multi-day events
+  let workingString = dateString.trim();
   
-  // For multi-day events like "9-11 March 2026", use the start date
-  if (cleanedDateString.includes("-")) {
-    const parts = cleanedDateString.split("-");
-    if (parts.length >= 2) {
-      // Check if it's a date range (first part is just a number)
-      if (/^\d+$/.test(parts[0].trim())) {
-        // It's a range like "9-11 March 2026", take the first date
-        const startDay = parts[0].trim();
-        const restOfDate = parts.slice(1).join("-").trim();
-        // If the rest contains a month, use start day + rest
-        if (/[a-zA-Z]/.test(restOfDate)) {
-          cleanedDateString = `${startDay} ${restOfDate.replace(/^\d+\s*/, "")}`;
-        }
-      }
+  // Handle multi-day formats like "9-11 March 2026" or "9–11 March 2026"
+  const multiDayMatch = workingString.match(/^(\d+)[–—-]\d+\s+(.+)$/);
+  if (multiDayMatch) {
+    // Use the first day: "9 March 2026"
+    workingString = `${multiDayMatch[1]} ${multiDayMatch[2]}`;
+  }
+  
+  // Remove ordinal suffixes (1st, 2nd, 3rd, 4th)
+  workingString = workingString.replace(/(\d+)(st|nd|rd|th)/g, '$1');
+  
+  // Try direct parsing first
+  let date = new Date(workingString);
+  if (!isNaN(date.getTime())) {
+    return date;
+  }
+  
+  // Try converting "DD Month YYYY" to "Month DD, YYYY" format
+  const ddMonthYearMatch = workingString.match(/^(\d{1,2})\s+(\w+)\s+(\d{4})$/);
+  if (ddMonthYearMatch) {
+    const [, day, month, year] = ddMonthYearMatch;
+    date = new Date(`${month} ${day}, ${year}`);
+    if (!isNaN(date.getTime())) {
+      return date;
     }
   }
   
-  // Try parsing the cleaned date
-  let parsedDate = new Date(cleanedDateString);
-  
-  // If parsing failed, try alternative formats
-  if (isNaN(parsedDate.getTime())) {
-    // Try with different separators
-    const alternatives = [
-      cleanedDateString.replace(/\s+/g, " "),
-      cleanedDateString.replace(/,/g, ""),
-      cleanedDateString.replace(/(\d+)\s+(\w+)\s+(\d+)/, "$2 $1, $3"),
-    ];
-    
-    for (const alt of alternatives) {
-      parsedDate = new Date(alt);
-      if (!isNaN(parsedDate.getTime())) {
-        break;
-      }
-    }
-  }
-  
-  return isNaN(parsedDate.getTime()) ? new Date(0) : parsedDate;
+  // Fallback to epoch if all parsing fails
+  return new Date(0);
 };
 
 

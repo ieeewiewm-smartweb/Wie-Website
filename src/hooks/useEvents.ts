@@ -131,7 +131,7 @@ export function useEvents() {
     }
   };
 
-  const cleanupDuplicates = async () => {
+    const cleanupDuplicates = async () => {
     try {
       const uniqueMap = new Map<string, ContentEvent>();
       const duplicatesToDelete: string[] = [];
@@ -154,8 +154,6 @@ export function useEvents() {
         return;
       }
 
-      console.log(`Cleaning up ${duplicatesToDelete.length} duplicates...`);
-
       // Delete all duplicates
       const deletePromises = duplicatesToDelete.map(async (id) => {
         const eventRef = doc(db, "events", id);
@@ -172,7 +170,6 @@ export function useEvents() {
         description: `Cleaned up ${duplicatesToDelete.length} duplicate events!`,
       });
     } catch (error) {
-      console.error("Error cleaning duplicates:", error);
       toast({
         title: "Error",
         description: "Failed to cleanup duplicates.",

@@ -39,9 +39,12 @@ const AwardForm = ({ award, onSubmit, onCancel }: AwardFormProps) => {
 
   return (
     <Dialog open={true} onOpenChange={onCancel}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg" aria-describedby="award-form-description">
         <DialogHeader>
           <DialogTitle>{award ? "Edit Award" : "Add New Award"}</DialogTitle>
+          <p id="award-form-description" className="sr-only">
+            {award ? "Edit the details of an existing award" : "Add a new award with title, date, description, and image"}
+          </p>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">

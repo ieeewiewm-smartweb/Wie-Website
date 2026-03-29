@@ -101,14 +101,11 @@ export function useAwards() {
 
   const deleteAward = async (id: string) => {
     try {
-      console.log("Attempting to delete award with ID:", id);
       const awardRef = doc(db, "awards", id);
       await deleteDoc(awardRef);
-      console.log("Award deleted from Firestore successfully");
 
       setAwards(prev => {
         const filtered = prev.filter(award => award.id !== id);
-        console.log("Awards after deletion:", filtered);
         return filtered;
       });
 
@@ -117,7 +114,6 @@ export function useAwards() {
         description: "Award deleted successfully!",
       });
     } catch (error) {
-      console.error("Error deleting award:", error);
       toast({
         title: "Error",
         description: `Failed to delete award: ${error.message}`,
@@ -150,8 +146,6 @@ export function useAwards() {
         return;
       }
 
-      console.log(`Cleaning up ${duplicatesToDelete.length} duplicates...`);
-
       // Delete all duplicates
       const deletePromises = duplicatesToDelete.map(async (id) => {
         const awardRef = doc(db, "awards", id);
@@ -168,7 +162,6 @@ export function useAwards() {
         description: `Cleaned up ${duplicatesToDelete.length} duplicate awards!`,
       });
     } catch (error) {
-      console.error("Error cleaning duplicates:", error);
       toast({
         title: "Error",
         description: "Failed to cleanup duplicates.",
