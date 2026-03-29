@@ -21,9 +21,50 @@ import { motion } from "framer-motion";
 import LazyImage from "@/components/LazyImage";
 
 const parseDate = (dateString: string): Date => {
-  const cleanedDateString = dateString.replace(/(\d+)(st|nd|rd|th)/, "$1"); // Remove ordinal suffix
-  const parsedDate = new Date(cleanedDateString);
-  return isNaN(parsedDate.getTime()) ? new Date(0) : parsedDate; // Default to 1970 if invalid
+  // Handle various date formats including multi-day events
+  let cleanedDateString = dateString
+    .replace(/(\d+)(st|nd|rd|th)/g, "$1") // Remove ordinal suffixes
+    .replace(/[–—-]/g, "-") // Replace en dash, em dash with regular dash
+    .trim();
+  
+  // For multi-day events like "9-11 March 2026", use the start date
+  if (cleanedDateString.includes("-")) {
+    const parts = cleanedDateString.split("-");
+    if (parts.length >= 2) {
+      // Check if it's a date range (first part is just a number)
+      if (/^\d+$/.test(parts[0].trim())) {
+        // It's a range like "9-11 March 2026", take the first date
+        const startDay = parts[0].trim();
+        const restOfDate = parts.slice(1).join("-").trim();
+        // If the rest contains a month, use start day + rest
+        if (/[a-zA-Z]/.test(restOfDate)) {
+          cleanedDateString = `${startDay} ${restOfDate.replace(/^\d+\s*/, "")}`;
+        }
+      }
+    }
+  }
+  
+  // Try parsing the cleaned date
+  let parsedDate = new Date(cleanedDateString);
+  
+  // If parsing failed, try alternative formats
+  if (isNaN(parsedDate.getTime())) {
+    // Try with different separators
+    const alternatives = [
+      cleanedDateString.replace(/\s+/g, " "),
+      cleanedDateString.replace(/,/g, ""),
+      cleanedDateString.replace(/(\d+)\s+(\w+)\s+(\d+)/, "$2 $1, $3"),
+    ];
+    
+    for (const alt of alternatives) {
+      parsedDate = new Date(alt);
+      if (!isNaN(parsedDate.getTime())) {
+        break;
+      }
+    }
+  }
+  
+  return isNaN(parsedDate.getTime()) ? new Date(0) : parsedDate;
 };
 
 
