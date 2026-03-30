@@ -10,14 +10,14 @@ const JoinUs = () => {
     const redirect = () => {
       try {
         // Method 1: Direct assignment
-        window.location = "https://ieeesousb-19feb.vercel.app/join";
+        window.location = "https://ieee.socet.edu.in/contact/";
       } catch (e) {
         try {
           // Method 2: href assignment
-          window.location.href = "https://ieeesousb-19feb.vercel.app/join";
+          window.location.href = "https://ieee.socet.edu.in/contact/";
         } catch (e2) {
           // Method 3: replace
-          window.location.replace("https://ieeesousb-19feb.vercel.app/join");
+          window.location.replace("https://ieee.socet.edu.in/contact/");
         }
       }
     };
@@ -40,15 +40,15 @@ const JoinUs = () => {
         <h1 className="text-4xl font-bold text-purple-800 mb-4">Redirecting you...</h1>
         
         <p className="text-lg text-gray-700 mb-8">
-          Taking you to the IEEE SOU join page. If you're not redirected automatically, please click the button below.
+          Taking you to the IEEE SOU contact page. If you're not redirected automatically, please click the button below.
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
           <Button className="bg-purple-700 hover:bg-purple-800" onClick={() => {
-            window.location.href = "https://ieeesousb-19feb.vercel.app/join";
+            window.location.href = "https://ieee.socet.edu.in/contact/";
           }}>
             <Mail className="h-4 w-4 mr-2" />
-            Go to Join Page
+            Go to Contact Page
           </Button>
           
           <Button variant="outline" className="border-purple-300" asChild>

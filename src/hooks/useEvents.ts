@@ -105,14 +105,11 @@ export function useEvents() {
 
   const deleteEvent = async (id: string) => {
     try {
-      console.log("Attempting to delete event with ID:", id);
       const eventRef = doc(db, "events", id);
       await deleteDoc(eventRef);
-      console.log("Event deleted from Firestore successfully");
 
       setEvents(prev => {
         const filtered = prev.filter(event => event.id !== id);
-        console.log("Events after deletion:", filtered.length);
         return filtered;
       });
 
@@ -121,7 +118,6 @@ export function useEvents() {
         description: "Event deleted successfully!",
       });
     } catch (error) {
-      console.error("Error deleting event:", error);
       toast({
         title: "Error",
         description: `Failed to delete event: ${error.message}`,

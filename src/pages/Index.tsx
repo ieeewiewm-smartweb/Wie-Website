@@ -21,31 +21,63 @@ import { motion } from "framer-motion";
 import LazyImage from "@/components/LazyImage";
 
 const parseDate = (dateString: string): Date => {
-  // Simple approach: extract the first date from multi-day events
+  if (!dateString) return new Date(0);
+  
   let workingString = dateString.trim();
   
   // Handle multi-day formats like "9-11 March 2026" or "9–11 March 2026"
-  const multiDayMatch = workingString.match(/^(\d+)[–—-]\d+\s+(.+)$/);
+  // Match pattern: number-number month year
+  const multiDayPattern = /^(\d{1,2})\s*[\u2013\u2014\-]\s*\d{1,2}\s+([A-Za-z]+)\s+(\d{4})$/;
+  const multiDayMatch = workingString.match(multiDayPattern);
+  
   if (multiDayMatch) {
-    // Use the first day: "9 March 2026"
-    workingString = `${multiDayMatch[1]} ${multiDayMatch[2]}`;
+    const [, startDay, month, year] = multiDayMatch;
+    workingString = `${startDay} ${month} ${year}`;
   }
   
   // Remove ordinal suffixes (1st, 2nd, 3rd, 4th)
-  workingString = workingString.replace(/(\d+)(st|nd|rd|th)/g, '$1');
+  workingString = workingString.replace(/(\d+)(st|nd|rd|th)/gi, '$1');
   
-  // Try direct parsing first
-  let date = new Date(workingString);
-  if (!isNaN(date.getTime())) {
-    return date;
+  // Manual parsing for "DD Month YYYY" format first (most reliable)
+  const ddMonthYearPattern = /^(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})$/;
+  const match = workingString.match(ddMonthYearPattern);
+  
+  if (match) {
+    const [, day, monthName, year] = match;
+    
+    const monthNames = {
+      'january': 0, 'jan': 0,
+      'february': 1, 'feb': 1,
+      'march': 2, 'mar': 2,
+      'april': 3, 'apr': 3,
+      'may': 4,
+      'june': 5, 'jun': 5,
+      'july': 6, 'jul': 6,
+      'august': 7, 'aug': 7,
+      'september': 8, 'sep': 8, 'sept': 8,
+      'october': 9, 'oct': 9,
+      'november': 10, 'nov': 10,
+      'december': 11, 'dec': 11
+    };
+    
+    const monthIndex = monthNames[monthName.toLowerCase()];
+    if (monthIndex !== undefined) {
+      const date = new Date(parseInt(year), monthIndex, parseInt(day));
+      if (!isNaN(date.getTime())) {
+        return date;
+      }
+    }
   }
   
-  // Try converting "DD Month YYYY" to "Month DD, YYYY" format
-  const ddMonthYearMatch = workingString.match(/^(\d{1,2})\s+(\w+)\s+(\d{4})$/);
-  if (ddMonthYearMatch) {
-    const [, day, month, year] = ddMonthYearMatch;
-    date = new Date(`${month} ${day}, ${year}`);
-    if (!isNaN(date.getTime())) {
+  // Try parsing in different formats as fallback
+  const formats = [
+    workingString, // Original format
+    workingString.replace(/(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/, '$2 $1, $3'), // "9 March 2026" -> "March 9, 2026"
+  ];
+  
+  for (const format of formats) {
+    const date = new Date(format);
+    if (!isNaN(date.getTime()) && date.getFullYear() > 1900) {
       return date;
     }
   }
@@ -71,16 +103,18 @@ const Index = () => {
 
   // Deduplicate and sort events before using carousel logic
   const sortedUniqueEvents = useMemo(
-    () =>
-      events
-        .filter((event, index, self) =>
-          index === self.findIndex((e) => e.title === event.title && e.date === event.date && e.description === event.description)
-        )
-        .sort((a, b) => {
-          const dateA = parseDate(a.date);
-          const dateB = parseDate(b.date);
-          return dateB.getTime() - dateA.getTime();
-        }),
+    () => {
+      const uniqueEvents = events.filter((event, index, self) =>
+        index === self.findIndex((e) => e.title === event.title && e.date === event.date && e.description === event.description)
+      );
+      
+      return uniqueEvents.sort((a, b) => {
+        const dateA = parseDate(a.date);
+        const dateB = parseDate(b.date);
+        // Sort by date descending (newest first)
+        return dateB.getTime() - dateA.getTime();
+      });
+    },
     [events]
   );
 

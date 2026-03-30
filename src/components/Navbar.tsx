@@ -19,7 +19,7 @@ const Navbar = () => {
     { label: "About", href: "#who-we-are", isExternal: false, isScroll: true, icon: Info },
     { label: "Events & Awards", href: "#activities", isExternal: false, isScroll: true, icon: Calendar },
     { label: "IEEE WIE", href: "https://wie.ieee.org/", isExternal: true, isScroll: false, icon: Globe },
-    { label: "Join Us", href: "https://ieeesousb-19feb.vercel.app/", isExternal: true, isScroll: false, icon: UserPlus },
+    { label: "Join Us", href: "https://ieee.socet.edu.in/contact/", isExternal: true, isScroll: false, icon: UserPlus },
   ];
   
   const handleScrollClick = (event, href) => {

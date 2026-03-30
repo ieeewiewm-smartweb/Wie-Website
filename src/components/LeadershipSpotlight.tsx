@@ -14,7 +14,7 @@ const defaultMembers: Member[] = [
   {
     name: "Dr. Satvik Khara",
     role: "Mentor",
-    description: "Dean, College of Technology, Silver Oak University; IEEE Senior Member; Chairperson, Technical Activity, Computer Society, IEEE Gujarat Section; Founding Member, Silver Oak University IEEE Student Branch.",
+    description: "Dean, College of Technology, Silver Oak University; IEEE Senior Member; Chairperson, Professional Activity Committee, IEEE Gujarat Section; Advisor, Silver Oak University IEEE Computer Society Student Branch Chapter; Founding Member, Silver Oak University IEEE Student Branch.",
     image: "http://ieee.socet.edu.in/wp-content/uploads/2025/05/satviksir.jpg",
   },
   {

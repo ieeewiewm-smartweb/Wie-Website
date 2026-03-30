@@ -8,10 +8,10 @@ type FactItem = {
 };
 
 const FACTS: FactItem[] = [
-  { value: 100, label: "Members", suffix: "+" },
-  { value: 10, label: "Events", suffix: "+" },
-  { value: 5, label: "Awards", suffix: "+" },
-  { value: 500, label: "Participations", suffix: "+" },
+  { value: 190, label: "Members", suffix: "+" },
+  { value: 60, label: "Events", suffix: "+" },
+  { value: 4, label: "Awards", suffix: "+" },
+  { value: 600, label: "Participations", suffix: "+" },
 ];
 
 function CountUpNumber({
@@ -41,10 +41,12 @@ function CountUpNumber({
             const animate = (timestamp: number) => {
               if (!start) start = timestamp;
               const progress = Math.min((timestamp - start) / duration, 1);
-              const eased = 1 - Math.pow(2, -10 * progress);
-              setCount(Math.floor(end * eased));
-
-              if (progress < 1) {
+              const eased = 1 - Math.pow(1 - progress, 3);
+              
+              if (progress >= 1) {
+                setCount(end);
+              } else {
+                setCount(Math.floor(end * eased));
                 requestAnimationFrame(animate);
               }
             };
