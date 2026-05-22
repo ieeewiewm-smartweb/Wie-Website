@@ -32,11 +32,15 @@ export function useEvents() {
         const eventSnapshot = await getDocs(eventsCollection);
         const eventsList = eventSnapshot.docs.map(convertDocToEvent);
         setEvents(eventsList);
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error loading events:", error);
+        const description = error?.code === "permission-denied"
+          ? "You do not have permission to load events. Check Firebase security rules or sign in with an authorized account."
+          : "Failed to load events. Please try again.";
+
         toast({
           title: "Error",
-          description: "Failed to load events. Please try again.",
+          description,
           variant: "destructive"
         });
       } finally {
@@ -127,7 +131,7 @@ export function useEvents() {
     }
   };
 
-    const cleanupDuplicates = async () => {
+  const cleanupDuplicates = async () => {
     try {
       const uniqueMap = new Map<string, ContentEvent>();
       const duplicatesToDelete: string[] = [];

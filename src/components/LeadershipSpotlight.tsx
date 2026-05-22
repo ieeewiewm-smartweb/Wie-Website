@@ -2,63 +2,65 @@ import { useState, useRef, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import LazyImage from "./LazyImage";
+import { db, storage } from "@/firebase";
+import { collection, doc, onSnapshot, setDoc } from "firebase/firestore";
+import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 
-interface Member {
-  name: string;
-  role: string;
-  description: string;
-  image: string; // local preview URL or empty
-}
+import defaultMembers, { LeaderData } from "@/data/leadership";
 
-const defaultMembers: Member[] = [
-  {
-    name: "Dr. Satvik Khara",
-    role: "Mentor",
-    description: "Dean, College of Technology, Silver Oak University; IEEE Senior Member; Chairperson, Professional Activity Committee, IEEE Gujarat Section; Advisor, Silver Oak University IEEE Computer Society Student Branch Chapter; Founding Member, Silver Oak University IEEE Student Branch.",
-    image: "http://ieee.socet.edu.in/wp-content/uploads/2025/05/satviksir.jpg",
-  },
-  {
-    name: "Prof. Gaurav Tiwari",
-    role: "Faculty Advisor",
-    description: "Assistant Professor, Department of Computer Engineering, College of Technology; Advisor, Silver Oak University IEEE Women In Engineering Student Branch Affinity Group",
-    image: "http://ieee.socet.edu.in/wp-content/uploads/2025/07/gaurav-sir.png",
-  },
-  {
-    name: "Deshna Shah",
-    role: "Chairperson",
-    description: "",
-    image: "http://ieee.socet.edu.in/wp-content/uploads/2026/02/19.png",
-  },
-  {
-    name: "Milan Sehgal",
-    role: "Vice Chairperson",
-    description: "",
-    image: "http://ieee.socet.edu.in/wp-content/uploads/2026/02/20.png",
-  },
-  {
-    name: "Maruf Fatema Mansuri",
-    role: "Secretary",
-    description: "",
-    image: "http://ieee.socet.edu.in/wp-content/uploads/2026/02/21.png",
-  },
-  {
-    name: "Price Sabalpara",
-    role: "Treasurer",
-    description: "",
-    image: "http://ieee.socet.edu.in/wp-content/uploads/2026/02/22.png",
-  },
-  {
-    name: "Suhani Singh",
-    role: "Webmaster",
-    description: "",
-    image: "http://ieee.socet.edu.in/wp-content/uploads/2026/02/23.png",
-  },
-];
+interface Member extends LeaderData { }
 
 export default function LeadershipSpotlight() {
   const [members, setMembers] = useState<Member[]>(defaultMembers);
   const [activeIndex, setActiveIndex] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Load persisted leadership documents from Firestore (collection: 'leadership')
+  useEffect(() => {
+    const leadershipRef = collection(db, "leadership");
+    const unsubscribe = onSnapshot(
+      leadershipRef,
+      (snapshot) => {
+        if (snapshot.empty) {
+          setMembers(defaultMembers);
+          return;
+        }
+
+        const docs = snapshot.docs.map((d) => ({ id: d.id, ...(d.data() as any) }));
+        const merged = defaultMembers.map((m) => {
+          const slug = m.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+          const found = docs.find((doc) => doc.id === slug || doc.name === m.name);
+          return found
+            ? {
+              name: found.name || m.name,
+              role: found.role || m.role,
+              description: found.description || m.description,
+              image: found.image || m.image,
+            }
+            : m;
+        });
+
+        docs.forEach((d) => {
+          if (!merged.find((mm) => mm.name === d.name)) {
+            merged.push({
+              name: d.name,
+              role: d.role || "",
+              description: d.description || "",
+              image: d.image || "",
+            });
+          }
+        });
+
+        setMembers(merged);
+      },
+      (error) => {
+        console.warn("Realtime leadership listener failed:", error);
+        setMembers(defaultMembers);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
 
   const active = members[activeIndex];
 
@@ -87,11 +89,45 @@ export default function LeadershipSpotlight() {
     const file = e.target.files?.[0];
     if (!file) return;
     const url = URL.createObjectURL(file);
+    // Optimistically update UI with local preview
     setMembers((m) => {
       const copy = [...m];
       copy[activeIndex] = { ...copy[activeIndex], image: url };
       return copy;
     });
+
+    // Persist to Firebase Storage and save URL in Firestore (doc id = slugified name)
+    (async () => {
+      try {
+        const active = members[activeIndex];
+        const slug = active.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+        const extMatch = file.name.match(/\.([0-9a-zA-Z]+)$/);
+        const ext = extMatch ? extMatch[1] : "jpg";
+        const storagePath = `leadership/${slug}-${Date.now()}.${ext}`;
+        const sRef = storageRef(storage, storagePath);
+        await uploadBytes(sRef, file);
+        const downloadUrl = await getDownloadURL(sRef);
+
+        // update Firestore document
+        const docRef = doc(db, "leadership", slug);
+        await setDoc(docRef, {
+          name: active.name,
+          role: active.role,
+          description: active.description,
+          image: downloadUrl,
+        });
+
+        // Replace local preview with hosted URL
+        setMembers((m) => {
+          const copy = [...m];
+          copy[activeIndex] = { ...copy[activeIndex], image: downloadUrl };
+          return copy;
+        });
+      } catch (err) {
+        console.error("Failed to upload leadership image:", err);
+      }
+    })();
+
     // reset value so same file can be uploaded again if needed
     e.target.value = "";
   };
@@ -205,9 +241,8 @@ export default function LeadershipSpotlight() {
             {members.map((_, idx) => (
               <span
                 key={idx}
-                className={`h-2 w-2 rounded-full transition-colors duration-300 ${
-                  idx === activeIndex ? "bg-purple-700" : "bg-purple-300"
-                }`}
+                className={`h-2 w-2 rounded-full transition-colors duration-300 ${idx === activeIndex ? "bg-purple-700" : "bg-purple-300"
+                  }`}
               />
             ))}
           </div>

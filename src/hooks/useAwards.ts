@@ -29,11 +29,15 @@ export function useAwards() {
         const awardSnapshot = await getDocs(awardsCollection);
         const awardsList = awardSnapshot.docs.map(convertDocToAward);
         setAwards(awardsList);
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error loading awards:", error);
+        const description = error?.code === "permission-denied"
+          ? "You do not have permission to load awards. Check Firebase security rules or sign in with an authorized account."
+          : "Failed to load awards. Please try again.";
+
         toast({
           title: "Error",
-          description: "Failed to load awards. Please try again.",
+          description,
           variant: "destructive"
         });
       } finally {

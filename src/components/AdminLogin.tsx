@@ -28,7 +28,7 @@ const AdminLogin = ({ onClose }: AdminLoginProps) => {
 
       // Store token for session management
       localStorage.setItem("isAdminLoggedIn", "true");
-      localStorage.setItem("adminUID", user.uid); 
+      localStorage.setItem("adminUID", user.uid);
 
       toast({
         title: "Login successful",
@@ -49,11 +49,11 @@ const AdminLogin = ({ onClose }: AdminLoginProps) => {
   };
 
   return (
-    <Dialog open={true} onOpenChange={() => {}}>
-      <DialogContent className="sm:max-w-md">
+    <Dialog open={true} onOpenChange={() => { }}>
+      <DialogContent className="sm:max-w-md" aria-describedby="admin-login-description">
         <DialogHeader>
           <DialogTitle>Admin Login</DialogTitle>
-          <DialogDescription>
+          <DialogDescription id="admin-login-description">
             Enter your email and password to access the admin dashboard
           </DialogDescription>
         </DialogHeader>

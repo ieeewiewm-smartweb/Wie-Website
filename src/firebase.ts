@@ -1,6 +1,7 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore, collection, addDoc, doc, updateDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import { getStorage } from "firebase/storage";
 
 // 🔹 Firebase Configuration
 const firebaseConfig = {
@@ -16,6 +17,12 @@ const firebaseConfig = {
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+const storage = getStorage(app);
+
+// Anonymous auth is not forced here because the Firebase project currently
+// disallows anonymous sign-ins (auth/admin-restricted-operation).
+// If you want public Firestore reads, update the Firebase rules or enable
+// anonymous auth in the Firebase Console.
 
 // Function to save or update the award to Firebase without comparisons
 export const saveAwardToFirebase = async (award: { title: string; date: string; description: string; imageUrl: string; id?: string }) => {
@@ -65,4 +72,4 @@ export const saveEventToFirebase = async (event: { title: string; date: string; 
   }
 };
 
-export { app, auth, db };
+export { app, auth, db, storage };
