@@ -27,20 +27,29 @@ const getUniqueEvents = (events: ContentEvent[]) => {
   return Array.from(uniqueEvents.values());
 };
 
-// Helper function to parse dates in "10th January, 2024" format
+// Helper function to parse dates in multiple formats
 const parseEventDate = (dateString: string): Date => {
-  // Handle date ranges like "24th and 27th January 2026" - take the first date
+  if (!dateString) return new Date(0);
+
+  try {
+    // Try parsing as a standard date string first (handles "March 15, 2024", "2024-03-15", etc.)
+    const parsed = new Date(dateString);
+    if (!isNaN(parsed.getTime())) return parsed;
+  } catch (e) {
+    // Fall through to ordinal format
+  }
+
+  // Handle ordinal format like "24th January 2026"
   const firstDateMatch = dateString.match(/(\d+)(st|nd|rd|th)/);
   if (firstDateMatch) {
-    // Extract the first date number and the rest of the string after it
     const dateNum = firstDateMatch[1];
     const restOfString = dateString.substring(dateString.indexOf(firstDateMatch[0]) + firstDateMatch[0].length);
-    // Remove "and XX" pattern if exists
     const cleanedRest = restOfString.replace(/\s+and\s+\d+(st|nd|rd|th)/, '');
     const cleanedDateString = dateNum + cleanedRest;
     const parsedDate = new Date(cleanedDateString);
-    return isNaN(parsedDate.getTime()) ? new Date(0) : parsedDate;
+    if (!isNaN(parsedDate.getTime())) return parsedDate;
   }
+
   return new Date(0);
 };
 
@@ -72,37 +81,37 @@ const EventList = ({ events, onEdit, onDelete }: EventListProps) => {
         </div>
       )}
       {sortedEvents.map((event) => (
-        <div 
-          key={event.id} 
+        <div
+          key={event.id}
           className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 border rounded-lg hover:bg-gray-50"
         >
           <div className="w-20 h-20 flex-shrink-0">
-            <img 
-              src={getImagePreviewUrl(event.imageUrl)} 
-              alt={event.title} 
-              className="w-full h-full object-cover rounded-md" 
+            <img
+              src={getImagePreviewUrl(event.imageUrl)}
+              alt={event.title}
+              className="w-full h-full object-cover rounded-md"
             />
           </div>
-          
+
           <div className="flex-grow">
             <h3 className="font-medium text-purple-800">{event.title}</h3>
             <p className="text-sm text-gray-600">{event.date}</p>
             <p className="text-sm text-gray-600 line-clamp-1">{event.description}</p>
           </div>
-          
+
           <div className="flex gap-2 self-end sm:self-center">
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => onEdit(event)}
               className="flex items-center gap-1"
             >
               <PencilIcon className="h-4 w-4" />
               Edit
             </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => {
                 if (window.confirm(`Are you sure you want to delete "${event.title}"?`)) {
                   onDelete(event.id);

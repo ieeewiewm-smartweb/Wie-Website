@@ -331,7 +331,10 @@ const Index = () => {
             </div>
 
             {/* Content for both tabs - use visibility instead of unmounting */}
-            <div className={`mt-2 ${activeTab === "recent" ? "block" : "hidden"}`}>
+            <div
+              className={`mt-2 ${activeTab === "recent" ? "block" : "hidden"} overflow-y-auto overflow-x-hidden`}
+              style={{ maxHeight: "65vh" }}
+            >
               {sortedUniqueEvents.length > 0 ? (
                 <RecentEventSlider events={sortedUniqueEvents} />
               ) : (

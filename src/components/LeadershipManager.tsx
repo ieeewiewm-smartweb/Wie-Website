@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PencilIcon, TrashIcon } from "lucide-react";
 import { auth, db, storage } from "@/firebase";
-import { collection, onSnapshot, doc, setDoc, deleteDoc } from "firebase/firestore";
+import { collection, onSnapshot, getDocs, doc, setDoc, deleteDoc } from "firebase/firestore";
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import defaultMembers, { LeaderData } from "@/data/leadership";
 
@@ -84,6 +84,37 @@ const LeadershipManager = () => {
         setIsFormOpen(true);
     };
 
+    const load = async () => {
+        const leadershipRef = collection(db, "leadership");
+        const snapshot = await getDocs(leadershipRef);
+        const docs = snapshot.docs.map((d) => ({ id: d.id, ...(d.data() as any) } as Member));
+        const merged: Member[] = defaultMembers.map((dft) => {
+            const slug = dft.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+            const found = docs.find((doc) => doc.id === slug || doc.name === dft.name);
+            return found
+                ? {
+                    id: found.id,
+                    name: found.name || dft.name,
+                    role: found.role || dft.role,
+                    description: found.description || dft.description,
+                    image: found.image || dft.image,
+                }
+                : {
+                    id: slug,
+                    name: dft.name,
+                    role: dft.role,
+                    description: dft.description,
+                    image: dft.image,
+                };
+        });
+
+        docs.forEach((d) => {
+            if (!merged.find((m) => m.id === d.id)) merged.push(d);
+        });
+
+        setMembers(merged);
+    };
+
     const handleEdit = (m: Member) => {
         setEditing(m);
         setFile(null);
@@ -144,14 +175,32 @@ const LeadershipManager = () => {
                 }
             }
 
-            await setDoc(doc(db, "leadership", id), {
-                name,
-                role,
-                description,
-                image: imageUrl,
-            });
+            const newId = slugify(name || "member");
 
-            // refresh list
+            // If editing and the name changed such that the slugified id differs,
+            // write to the new doc id and delete the old one to keep ids canonical.
+            if (editing && newId !== editing.id) {
+                await setDoc(doc(db, "leadership", newId), {
+                    name,
+                    role,
+                    description,
+                    image: imageUrl,
+                });
+                try {
+                    await deleteDoc(doc(db, "leadership", editing.id));
+                } catch (delErr) {
+                    console.warn("Failed to delete old leadership doc after rename:", delErr);
+                }
+            } else {
+                await setDoc(doc(db, "leadership", newId), {
+                    name,
+                    role,
+                    description,
+                    image: imageUrl,
+                });
+            }
+
+            // refresh local list from server to reflect any id changes
             await load();
             setIsFormOpen(false);
             setEditing(null);

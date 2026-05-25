@@ -8,10 +8,17 @@ import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage
 
 import defaultMembers, { LeaderData } from "@/data/leadership";
 
-interface Member extends LeaderData { }
+interface Member extends LeaderData {
+  id: string;
+}
+
+const defaultMembersWithId: Member[] = defaultMembers.map((member) => ({
+  id: member.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""),
+  ...member,
+}));
 
 export default function LeadershipSpotlight() {
-  const [members, setMembers] = useState<Member[]>(defaultMembers);
+  const [members, setMembers] = useState<Member[]>(defaultMembersWithId);
   const [activeIndex, setActiveIndex] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -22,16 +29,17 @@ export default function LeadershipSpotlight() {
       leadershipRef,
       (snapshot) => {
         if (snapshot.empty) {
-          setMembers(defaultMembers);
+          setMembers(defaultMembersWithId);
           return;
         }
 
-        const docs = snapshot.docs.map((d) => ({ id: d.id, ...(d.data() as any) }));
-        const merged = defaultMembers.map((m) => {
-          const slug = m.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+        const docs = snapshot.docs.map((d) => ({ id: d.id, ...(d.data() as any) } as Member));
+        const merged = defaultMembersWithId.map((m) => {
+          const slug = m.id;
           const found = docs.find((doc) => doc.id === slug || doc.name === m.name);
           return found
             ? {
+              id: found.id,
               name: found.name || m.name,
               role: found.role || m.role,
               description: found.description || m.description,
@@ -41,8 +49,9 @@ export default function LeadershipSpotlight() {
         });
 
         docs.forEach((d) => {
-          if (!merged.find((mm) => mm.name === d.name)) {
+          if (!merged.find((mm) => mm.id === d.id)) {
             merged.push({
+              id: d.id,
               name: d.name,
               role: d.role || "",
               description: d.description || "",
@@ -55,7 +64,7 @@ export default function LeadershipSpotlight() {
       },
       (error) => {
         console.warn("Realtime leadership listener failed:", error);
-        setMembers(defaultMembers);
+        setMembers(defaultMembersWithId);
       }
     );
 
@@ -100,16 +109,15 @@ export default function LeadershipSpotlight() {
     (async () => {
       try {
         const active = members[activeIndex];
-        const slug = active.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
         const extMatch = file.name.match(/\.([0-9a-zA-Z]+)$/);
         const ext = extMatch ? extMatch[1] : "jpg";
-        const storagePath = `leadership/${slug}-${Date.now()}.${ext}`;
+        const storagePath = `leadership/${active.id}-${Date.now()}.${ext}`;
         const sRef = storageRef(storage, storagePath);
         await uploadBytes(sRef, file);
         const downloadUrl = await getDownloadURL(sRef);
 
         // update Firestore document
-        const docRef = doc(db, "leadership", slug);
+        const docRef = doc(db, "leadership", active.id);
         await setDoc(docRef, {
           name: active.name,
           role: active.role,
