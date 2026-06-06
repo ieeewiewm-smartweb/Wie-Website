@@ -1,8 +1,9 @@
 # TODO
-- [x] Add a vertical scrollbar to the Events (Recent Events tab) section by constraining height and using `overflow-y-auto` in `src/pages/Index.tsx`.
-
-- [x] Verify Events tab scrolls internally and page scroll behavior is improved.
-- [x] Remove accidental scrollbar from Admin dashboard slideshow preview (RecentEventSlider).
-
-
+- [ ] Build the app locally to confirm `dist/` is generated
+- [ ] Push code to GitHub (so Cloudflare Pages can deploy)
+- [ ] Create Cloudflare Pages project connected to the GitHub repo
+- [ ] Configure Cloudflare Pages: Build command `npm run build`, output `dist`
+- [ ] Enable SPA routing rewrite to `/index.html`
+- [ ] Deploy and test routes (refresh deep links)
+- [ ] If using Firebase env vars, ensure `VITE_...` variables are set in Cloudflare build env
 
