@@ -14,10 +14,17 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
-const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
-const storage = getStorage(app);
+const hasFirebaseConfig = !!firebaseConfig.apiKey && !!firebaseConfig.authDomain && !!firebaseConfig.projectId && !!firebaseConfig.appId;
+
+// IMPORTANT:
+// Cloudflare Pages may run builds with no VITE_* env vars configured.
+// Avoid initializing Firebase in that case to prevent auth/invalid-api-key errors.
+const app = hasFirebaseConfig ? (getApps().length > 0 ? getApp() : initializeApp(firebaseConfig)) : null;
+
+const db = app ? getFirestore(app) : null;
+const auth = app ? getAuth(app) : null;
+const storage = app ? getStorage(app) : null;
+
 
 // Anonymous auth is not forced here because the Firebase project currently
 // disallows anonymous sign-ins (auth/admin-restricted-operation).
@@ -27,6 +34,10 @@ const storage = getStorage(app);
 // Function to save or update the award to Firebase without comparisons
 export const saveAwardToFirebase = async (award: { title: string; date: string; description: string; imageUrl: string; id?: string }) => {
   try {
+    if (!db) {
+      console.warn("Firebase is not configured (missing VITE_FIREBASE_* env vars). Skipping saveAwardToFirebase.");
+      return;
+    }
     const awardsRef = collection(db, "awards");
 
     // Log before saving data
